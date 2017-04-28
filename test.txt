@@ -1,3 +1,0 @@
-This is test file.
-这是测试文件。
-add a line.
