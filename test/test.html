@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>表单输入</title>
+	</head>
+	<body>
+		<form action="test.php" method="post">
+		名字：<input type="text" name="fname" />
+		年龄：<input type="text" name="age" />
+		<input type="submit" />
+		</form>
+		<div>
+			<?php
+			echo "welcome ".$_POST["fname"]."!<br>";
+			echo "you ".$_POST["age"]."years old.";
+			?>
+		</div>
+	</body>
+</html>
