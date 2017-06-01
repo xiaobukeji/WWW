@@ -18,6 +18,7 @@ body {
     text-shadow: 0 1px 1px rgba(255,255,255,0.4);
     color: #262626;
     background: #ffffff;
+    background: #FFF url(../images/bg.jpg) repeat-x top 80px left;
 }
 
 #box {
@@ -31,7 +32,6 @@ body {
     height: 80px;
     background : #025088;
     position: relative;
-    margin-bottom: 30px;
 }
 
 .fl {
@@ -105,3 +105,11 @@ ul li.active a{
     background: -moz-radial-gradient(center 80px 45deg, circle cover, rgba(31,169,244,1) 0%, rgba(0,28,78, 1) 100%);
 }
 /* --------------------------------- */
+
+/* header css */
+.header{
+  margin:0 auto;
+  width:960px;
+  height:160px;
+  overflow:hidden;
+}
