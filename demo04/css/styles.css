@@ -16,9 +16,8 @@ body {
     font-family: Arial;
     font-size: 14px;
     text-shadow: 0 1px 1px rgba(255,255,255,0.4);
-    color: #262626;
-    background: #ffffff;
-    background: #FFF url(../images/bg.jpg) repeat-x top 80px left;
+    color: #4A4A4A;
+    background: #ffffff url(../images/bg.jpg) repeat-x top 80px left;
 }
 
 #box {
@@ -112,10 +111,79 @@ ul li.active a{
 }
 /* --------------------------------- */
 
-/* header css */
-.header{
+/* banner css */
+.banner{
   margin:0 auto;
   width:100%;
   height:auto;
   overflow:hidden;
+}
+/* -------------------------------- */
+
+/* content css */
+.content {
+  margin:0 auto;
+  width:960px;
+}
+
+h3 {
+  color:#0044A1;
+  font-size:16px;
+  margin:12px auto;
+}
+
+.left {
+  float:left;
+  width:640px;
+}
+
+.left p {
+  color:#333333;
+  font-size:12px;
+  line-height:30px;
+}
+
+.right {
+  float:right;
+  width:300px;
+}
+
+.login {
+  width: 100%;
+  border:solid #D9E6EF 1px;
+}
+
+.login .login-title {
+  margin:12px 18px;
+  border-bottom:solid #C8D7E0 1px;
+  padding-bottom:8px;
+  padding-left:5px;
+}
+
+.login .mb {
+  margin-bottom: 13px;
+}
+
+.login form {
+  text-align: right;
+  margin-right: 25px;
+}
+
+.login span {
+  margin-right:12px;
+}
+
+.login input {
+  border:solid #a7cde7 1px;
+  width:180px;
+  height:23px;
+}
+
+.login .submit {
+  padding: 5px 10px;
+  width:90px;
+  height:auto;
+  cursor:pointer;
+  color:#ffffff;
+  background:#00375F;
 }
