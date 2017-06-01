@@ -43,6 +43,12 @@ body {
     margin: 0 auto;
 }
 
+.logo {
+  float:left;
+  width:200px;
+  height:80px;
+}
+
 .menu {
     height: 80px;
     border-left: 1px solid rgba(0,0,0,0.3);
@@ -109,7 +115,7 @@ ul li.active a{
 /* header css */
 .header{
   margin:0 auto;
-  width:960px;
-  height:160px;
+  width:100%;
+  height:auto;
   overflow:hidden;
 }
