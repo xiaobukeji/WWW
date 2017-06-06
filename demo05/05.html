@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>My shop 单文件版</title>
+<style type="text/css">
+/* CSS初始化 */
+body,ul,img,div{margin:0;padding:0;border:0}
+body{font:12px "宋体","Arial Narrow",HELVETICA;background:#fff;-webkit-text-size-adjust:100%;}
+a{color:#2d374b;text-decoration:none}
+a:hover{color:#cd0200;text-decoration:underline}
+li{list-style:none}
+img{border:0;vertical-align:middle}
+p{word-wrap:break-word}
+/* ---------------------------- */
+
+#box {
+	width:100%;
+  height:100%;
+}
+
+#top {
+  width:100%;
+  height:120px;
+}
+
+#top #logo {
+  width:950px;
+  height:120px;
+  margin:0 auto;
+}
+
+#top #logo img {
+  width:950px;
+  height:120px;
+}
+
+#nav {
+  width:100%;
+  height:30px;
+  background-color: #FF5555;
+}
+
+#nav #biaoti {
+  margin:0 auto;
+	height: 30px;
+	width: 950px;
+	background-color: #FF5555;
+}
+
+#nav #biaoti ul {
+	list-style-type: none;
+  width:950px;
+  height:30px;
+  overflow:auto;
+  zoom:1;
+}
+
+#nav #biaoti ul li {
+	float: left;
+	position: relative;
+
+  height:30px;
+  line-height:30px;
+}
+
+#nav #biaoti ul .cur {
+  background: #fe68a1;
+}
+
+#nav #biaoti ul li a {
+  display:block;
+  padding:0 20px;
+  font-size:12px;
+  font-weight:100;
+	color:#ffffff;
+	text-decoration:none;
+}
+
+#nav #biaoti ul li a:hover {
+  padding:0 20px;
+  font-size:12px;
+  font-weight:100;
+  color:#ffffff;
+  text-decoration: none;
+  background:#c31150;
+}
+
+#banner-box {
+  width:100%;
+  background:#FF659B;
+}
+
+#banner-box #banner-img {
+  margin:0 auto;
+  width:950px;
+  height:355px;
+}
+
+#banner-box #banner-img img {
+  width:950px;
+  height:355px;
+}
+
+#juan-box {
+  width:100%;
+}
+
+#juan-img img {
+  width:100%;
+  max-height:232px;
+}
+
+#goods {
+  width:100%;
+}
+
+#goods #title {
+  width:100%;
+  height:50px;
+  background-color: #E34A71;
+  text-align:center;
+}
+
+#goods #title a {
+  color:#ffffff;
+  height:50px;
+  font-size:32px;
+  font-weight:bolder;
+  line-height:50px;
+}
+
+#goods #title a:hover {
+  text-decoration:none;
+  color:#ffffff;
+  font-size:32px;
+  line-height:50px;
+}
+
+#goods #bg {
+  width:100%;
+  height:670px;
+  background:#FC85AF;
+}
+
+#goods #pic {
+  width:965px;
+  margin:0 auto;
+  padding-top:10px;
+  padding-bottom:10px;
+  overflow: auto;
+  zoom: 1;
+}
+
+#goods #pic div {
+  margin:5px 3px 5px 3px;
+}
+
+#goods #pic img {
+  width:315px;
+  height:315px;
+}
+
+#goods #pic #pot01 {
+	float: left;
+	height: 315px;
+	width: 315px;
+}
+
+#goods #pic #pot02 {
+	float: left;
+	height: 315px;
+	width: 315px;
+}
+
+#goods #pic #pot03 {
+  float:left;
+  height:315px;
+  width:315px;
+}
+
+#goods #pic #pot04 {
+  float:left;
+  height:315px;
+  width:315px;
+}
+
+#goods #pic #pot05 {
+  float:left;
+  height:315px;
+  width:315px;
+}
+
+#goods #pic #pot06 {
+  float:left;
+  height:315px;
+  width:315px;
+}
+</style>
+</head>
+
+<body>
+<div id="box">
+		<div id="top">
+				<div id="logo"><img src="img/02.jpg"></div>
+		</div>
+		<div id="nav">
+		    <div id="biaoti">
+		        <ul>
+			          <li><a href="#">所有类型</a></li>
+			          <li class="cur"><a href="#">首页</a></li>
+			          <li><a href="#">2017新品</a></li>
+			          <li><a href="#">LEGO乐高系列</a></li>
+			          <li><a href="#">年龄分类</a></li>
+			          <li><a href="#">女孩玩具</a></li>
+			          <li><a href="#">男孩玩具</a></li>
+			          <li><a href="#">人气爆款</a></li>
+		        </ul>
+		    </div>
+		</div>
+		<div id="banner-box">
+				<div id="banner-img"><img src="img/01.jpg"></div>
+		</div>
+		<div id="juan-box">
+				<div id="juan-img"><img src="img/03.jpg"></div>
+		</div>
+		<div id="goods">
+				<div id="title"><a href="#">【乐高推荐】</a></div>
+				<div id="bg">
+					 	<div id="pic">
+							  <div id="pot01"><a href="#"><img src="img/11.jpg"></a></div>
+							  <div id="pot02"><a href="#"><img src="img/12.jpg"></a></div>
+							  <div id="pot03"><a href="#"><img src="img/13.jpg"></a></div>
+							  <div id="pot04"><a href="#"><img src="img/14.jpg"></a></div>
+							  <div id="pot05"><a href="#"><img src="img/15.jpg"></a></div>
+							  <div id="pot06"><a href="#"><img src="img/16.jpg"></a></div>
+						</div>
+				</div>
+		</div>
+</div>
+</body>
+</html>
