@@ -42,7 +42,7 @@
                                         <li><{$r.username}></li>
                                         <li><{date("Y年m月d日 H:i:s", $r.createtime)}></li>
                                         <li>
-                                            <button type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> 100</button>
+                                            <button type="button" class="btn btn-default btn-xs" onclick="digmsg(<{$r.id}>)"><span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> <span id="dig-<{$r.id}>"><{$r.dig}></span></button>
                                         </li>
                                     </ul>
                                 </blockquote>
