@@ -35,4 +35,12 @@ class ViewController extends BaseController {
 		// 然后直接显示更新后的点赞数
 		echo $dig;
 	}
+	function actionDel(){
+		// 同样的，首先是根据提交参数确定条件
+		$condition = array("id" => arg("upid"));
+		$guestbook = new Model("guestbool");
+
+		// 直接返回结果，实际上这个结果是被忽略的
+		echo $guestbook->delete($condition);
+	}
 }

@@ -25,7 +25,7 @@
         <div class="row">
             <div class="col-md-8">
                 <?php $_foreach_r_counter = 0; $_foreach_r_total = count($records);?><?php foreach( $records as $r ) : ?><?php $_foreach_r_index = $_foreach_r_counter;$_foreach_r_iteration = $_foreach_r_counter + 1;$_foreach_r_first = ($_foreach_r_counter == 0);$_foreach_r_last = ($_foreach_r_counter == $_foreach_r_total - 1);$_foreach_r_counter++;?>
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="panel-<?php echo htmlspecialchars($r['id'], ENT_QUOTES, "UTF-8"); ?>">
                     <div class="panel-body">
                         <div class="media">
                             <div class="media-left">
@@ -34,7 +34,7 @@
                                 </a>
                             </div>
                             <div class="media-body">
-                                <h4 class="media-heading"><a href="javascript:void(0);" onclick="showmsg(<?php echo htmlspecialchars($r['id'], ENT_QUOTES, "UTF-8"); ?>)"><?php echo htmlspecialchars($r['title'], ENT_QUOTES, "UTF-8"); ?></a><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></h4> <?php echo htmlspecialchars($r['contents'], ENT_QUOTES, "UTF-8"); ?>
+                                <h4 class="media-heading"><a href="javascript:void(0);" onclick="showmsg(<?php echo htmlspecialchars($r['id'], ENT_QUOTES, "UTF-8"); ?>)"><?php echo htmlspecialchars($r['title'], ENT_QUOTES, "UTF-8"); ?></a><button type="button" class="close" aria-label="Close" onclick="delmsg(<?php echo htmlspecialchars($r['id'], ENT_QUOTES, "UTF-8"); ?>)"><span aria-hidden="true">&times;</span></button></h4> <?php echo htmlspecialchars($r['contents'], ENT_QUOTES, "UTF-8"); ?>
                                 <blockquote class="blockquote-reverse small">
                                     <ul class="list-inline text-muted">
 

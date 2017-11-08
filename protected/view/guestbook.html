@@ -25,7 +25,7 @@
         <div class="row">
             <div class="col-md-8">
                 <{foreach $records as $r}>
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="panel-<{$r.id}>">
                     <div class="panel-body">
                         <div class="media">
                             <div class="media-left">
@@ -34,7 +34,7 @@
                                 </a>
                             </div>
                             <div class="media-body">
-                                <h4 class="media-heading"><a href="javascript:void(0);" onclick="showmsg(<{$r.id}>)"><{$r.title}></a><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button></h4> <{$r.contents}>
+                                <h4 class="media-heading"><a href="javascript:void(0);" onclick="showmsg(<{$r.id}>)"><{$r.title}></a><button type="button" class="close" aria-label="Close" onclick="delmsg(<{$r.id}>)"><span aria-hidden="true">&times;</span></button></h4> <{$r.contents}>
                                 <blockquote class="blockquote-reverse small">
                                     <ul class="list-inline text-muted">
 

@@ -46,4 +46,10 @@
 		        $("#dig-" + id).html(dig);
 		    });
 		}
+		function delmsg(id){
+		    // 这里不需要json返回，所以直接使用$.get即可
+		    $.get("<?php echo url(array('c'=>"view", 'a'=>"del", ));?>", {"upid" : id}, function(){
+		        $("#panel-" + id).fadeOut();
+		    });
+		}
 	</script>
