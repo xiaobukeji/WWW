@@ -51,25 +51,27 @@
                     </div>
                 </div>
                 <{/foreach}>
+                <{if $pager}>
                 <nav>
                     <ul class="pagination pull-right">
                         <li>
-                            <a href="#" aria-label="Previous">
+                            <a href="<{url c="main" a="index" p=$pager.prev_page}>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                        <li><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
+                        <{foreach $pager.all_pages as $p}>
+                        <li<{if $p == $pager.current_page}> class="active"<{/if}>>
+                            <a href="<{url c="main" a="index" p=$p}>"><{$p}></a>
+                        </li>
+                        <{/foreach}>
                         <li>
-                            <a href="#" aria-label="Next">
+                            <a href="<{url c="main" a="index" p=$pager.next_page}>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
                     </ul>
                 </nav>
+                <{/if}>
             </div>
             <div class="col-md-4">
                 <nav>

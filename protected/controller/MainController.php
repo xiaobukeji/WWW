@@ -1,12 +1,19 @@
 <?php
 class MainController extends BaseController {
     function actionIndex(){
+        // 接收页码参数
+        $page = (int)arg("p",1);
+
         // 实例化一个guestbook的模型类
         $guestbook = new Model("guestbook");
         // 用findAll()方法查询guestbook表的全部数据
-        $this->records = $guestbook->findAll();
+        $this->records = $guestbook->findAll(null,"createtime DESC","*",array($page,3));
         // 输出看看
         //dump($this->records);
+        //dump($this->pager);
+        
+        $this->pager = $guestbook->page;
+
         // 为了清楚到输出，我们的先屏蔽页面输出
         $this->display("guestbook.html");
         /**
@@ -15,6 +22,7 @@ class MainController extends BaseController {
          *  这也是最基础的模板引擎的用法之一。
          */
     }
+
     function actionWrite(){
         // 这种dump()提交数据的方式建议大家多用用，这是非常有益的小习惯。
         // 很多时候我们会发现表单失效首先是因为提交数据不对引起的。
