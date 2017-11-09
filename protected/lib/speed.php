@@ -1,4 +1,5 @@
 <?php
+define('SPEED_VER', '0.1');
 set_error_handler("_err_handle");
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 $GLOBALS = require(APP_DIR.DS.'protected'.DS.'config.php');
@@ -12,20 +13,16 @@ if($GLOBALS['debug']){
 	ini_set("log_errors", "On");
 }
 
-if((!empty($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == "https") || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)){
-	$GLOBALS['http_scheme'] = 'https://';
-}else{
-	$GLOBALS['http_scheme'] = 'http://';
-}
-
 if(!empty($GLOBALS['rewrite'])){
+	if( ($pos = strpos( $_SERVER['REQUEST_URI'], '?' )) !== false )
+		parse_str( substr( $_SERVER['REQUEST_URI'], $pos + 1 ), $_GET );
 	foreach($GLOBALS['rewrite'] as $rule => $mapper){
-		if('/' == $rule)$rule = '/$';
-		if(0!==stripos($rule, $GLOBALS['http_scheme']))
-			$rule = $GLOBALS['http_scheme'].$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/\\') .'/'.$rule;
-		$rule = '/'.str_ireplace(array('\\\\', $GLOBALS['http_scheme'], '/', '<', '>',  '.'), 
-			array('', '', '\/', '(?P<', '>[-\w]+)', '\.'), $rule).'/i';
-		if(preg_match($rule, $GLOBALS['http_scheme'].$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], $matchs)){
+		if('/' == $rule)$rule = '';
+		if(0!==stripos($rule, 'http://'))
+			$rule = 'http://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/\\') .'/'.$rule;
+		$rule = '/'.str_ireplace(array('\\\\', 'http://', '/', '<', '>',  '.'), 
+			array('', '', '\/', '(?<', '>\w+)', '\.'), $rule).'/i';
+		if(preg_match($rule, 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], $matchs)){
 			$route = explode("/", $mapper);
 			
 			if(isset($route[2])){
@@ -41,29 +38,31 @@ if(!empty($GLOBALS['rewrite'])){
 	}
 }
 
-$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
+$_REQUEST = array_merge($_POST, $_GET);
 $__module     = isset($_REQUEST['m']) ? strtolower($_REQUEST['m']) : '';
 $__controller = isset($_REQUEST['c']) ? strtolower($_REQUEST['c']) : 'main';
 $__action     = isset($_REQUEST['a']) ? strtolower($_REQUEST['a']) : 'index';
 
+if(!empty($__module)){
+	if(!is_available_classname($__module))err("Err: Module name '$__module' is not correct!");
+	if(!is_dir(APP_DIR.DS.'protected'.DS.'controller'.DS.$__module))err("Err: Module '$__module' is not exists!");
+}
+if(!is_available_classname($__controller))err("Err: Controller name '$__controller' is not correct!");
+
 spl_autoload_register('inner_autoload');
 function inner_autoload($class){
 	GLOBAL $__module;
-	$class = str_replace("\\","/",$class);
 	foreach(array('model', 'include', 'controller'.(empty($__module)?'':DS.$__module)) as $dir){
 		$file = APP_DIR.DS.'protected'.DS.$dir.DS.$class.'.php';
 		if(file_exists($file)){
 			include $file;
 			return;
 		}
-		$phpfiles = glob(APP_DIR.DS.'protected'.DS.$dir.DS.'*.php');
-		if(is_array($phpfiles)){
-			$lowerfile = strtolower($file);
-			foreach($phpfiles as $file){
-				if(strtolower($file) === $lowerfile){
-					include $file;
-					return;
-				}
+		$lowerfile = strtolower($file);
+		foreach(glob(APP_DIR.DS.'protected'.DS.$dir.DS.'*.php') as $file){
+			if(strtolower($file) === $lowerfile){
+				include $file;
+				return;
 			}
 		}
 	}
@@ -72,13 +71,17 @@ function inner_autoload($class){
 $controller_name = $__controller.'Controller';
 $action_name = 'action'.$__action;
 
-if(!empty($__module)){
-	if(!is_available_classname($__module))_err_router("Err: Module '$__module' is not correct!");
-	if(!is_dir(APP_DIR.DS.'protected'.DS.'controller'.DS.$__module))_err_router("Err: Module '$__module' is not exists!");
+if(!method_exists($controller_name, $action_name)) {
+	if(!method_exists('BaseController', 'err404')){
+		if(!class_exists($controller_name, true)) {
+			err("Err: Controller '$controller_name' is not exists!");
+		}else{
+			err("Err: Method '$action_name' of '$controller_name' is not exists!");
+		}
+	}else{
+		BaseController::err404($__controller, $__action);
+	}
 }
-if(!is_available_classname($__controller))_err_router("Err: Controller '$controller_name' is not correct!");
-if(!class_exists($controller_name, true))_err_router("Err: Controller '$controller_name' is not exists!");
-if(!method_exists($controller_name, $action_name))_err_router("Err: Method '$action_name' of '$controller_name' is not exists!");
 
 $controller_obj = new $controller_name();
 $controller_obj->$action_name();
@@ -106,40 +109,37 @@ function url($c = 'main', $a = 'index', $param = array()){
 	}
 
 	if(!empty($GLOBALS['rewrite'])){
-		if(!isset($GLOBALS['url_array_instances'][$url])){
+		static $urlArray=array();
+		if(!isset($urlArray[$url])){
 			foreach($GLOBALS['rewrite'] as $rule => $mapper){
-				$mapper = '/^'.str_ireplace(array('/', '<a>', '<c>', '<m>'), array('\/', '(?P<a>\w+)', '(?P<c>\w+)', '(?P<m>\w+)'), $mapper).'/i';
+				$mapper = '/'.str_ireplace(array('/', '<a>', '<c>', '<m>'), 
+					array('\/', '(?<a>\w+)', '(?<c>\w+)', '(?<m>\w+)'), $mapper).'/i';
+				
 				if(preg_match($mapper, $route, $matchs)){
-					$rule = str_ireplace(array('<a>', '<c>', '<m>'), array($a, $c, $m), $rule);
-					$match_param_count = 0;
-					$param_in_rule = substr_count($rule, '<');
-					if(!empty($param) && $param_in_rule > 0){
-						foreach($param as $param_key => $param_v){
-							if(false !== stripos($rule, '<'.$param_key.'>'))$match_param_count++;
+					$urlArray[$url] = str_ireplace(array('<a>', '<c>', '<m>'), array($a, $c, $m), $rule);
+					if(!empty($param)){
+						$_args = array();
+						foreach($param as $argkey => $arg){
+							$count = 0;
+							$urlArray[$url] = str_ireplace('<'.$argkey.'>', $arg, $urlArray[$url], $count);
+							if(!$count)$_args[$argkey] = $arg;
 						}
+						$urlArray[$url] = preg_replace('/<\w+>/', '', $urlArray[$url]).
+							(!empty($_args) ? '?'.http_build_query($_args) : '');
 					}
-					if($param_in_rule == $match_param_count){
-						$GLOBALS['url_array_instances'][$url] = $rule;
-						if(!empty($param)){
-							$_args = array();
-							foreach($param as $arg_key => $arg){
-								$count = 0;
-								$GLOBALS['url_array_instances'][$url] = str_ireplace('<'.$arg_key.'>', $arg, $GLOBALS['url_array_instances'][$url], $count);
-								if(!$count)$_args[$arg_key] = $arg;
-							}
-							$GLOBALS['url_array_instances'][$url] = preg_replace('/<\w+>/', '', $GLOBALS['url_array_instances'][$url]). (!empty($_args) ? '?'.http_build_query($_args) : '');
-						}
-						
-						if(0!==stripos($GLOBALS['url_array_instances'][$url], $GLOBALS['http_scheme'])){
-							$GLOBALS['url_array_instances'][$url] = $GLOBALS['http_scheme'].$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/\\') .'/'.$GLOBALS['url_array_instances'][$url];
-						}
-						return $GLOBALS['url_array_instances'][$url];
+					
+					if(0!==stripos($urlArray[$url], 'http://')) 
+						$urlArray[$url] = 'http://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER["SCRIPT_NAME"]), '/\\') .'/'.$urlArray[$url];
+					$rule = str_ireplace(array('<m>', '<c>', '<a>'), '', $rule);
+					if(count($param) == preg_match_all('/<\w+>/is', $rule, $_match)){
+						return $urlArray[$url];
 					}
+					break;
 				}
 			}
-			return isset($GLOBALS['url_array_instances'][$url]) ? $GLOBALS['url_array_instances'][$url] : $url;
+			return isset($urlArray[$url]) ? $urlArray[$url] : $url;
 		}
-		return $GLOBALS['url_array_instances'][$url];
+		return $urlArray[$url];
 	}
 	return $url;
 }
@@ -155,11 +155,10 @@ function is_available_classname($name){
 	return preg_match('/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $name);
 }
 
-function arg($name = null, $default = null, $trim = false) {
+function arg($name = null, $default = null) {
 	if($name){
 		if(!isset($_REQUEST[$name]))return $default;
 		$arg = $_REQUEST[$name];
-		if($trim)$arg = trim($arg);
 	}else{
 		$arg = $_REQUEST;
 	}
@@ -169,7 +168,7 @@ function arg($name = null, $default = null, $trim = false) {
 class Controller{
 	public $layout;
 	public $_auto_display = true;
-	protected $_v;
+	private $_v;
 	private $_data = array();
 
 	public function init(){}
@@ -212,8 +211,6 @@ class Model{
 		$sql = ' FROM '.$this->table_name.$conditions["_where"];
 		if(is_array($limit)){
 			$total = $this->query('SELECT COUNT(*) as M_COUNTER '.$sql, $conditions["_bindParams"]);
-			if(!isset($total[0]['M_COUNTER']) || $total[0]['M_COUNTER'] == 0)return false;
-			
 			$limit = $limit + array(1, 10, 10);
 			$limit = $this->pager($limit[0], $limit[1], $limit[2], $total[0]['M_COUNTER']);
 			$limit = empty($limit) ? '' : ' LIMIT '.$limit['offset'].','.$limit['limit'];			
@@ -311,18 +308,7 @@ class Model{
 		}
 		
 		if(is_array($params) && !empty($params)){
-			foreach($params as $k => &$v){
-				if(is_int($v)){
-					$data_type = PDO::PARAM_INT;
-				}elseif(is_bool($v)){
-					$data_type = PDO::PARAM_BOOL;
-				}elseif(is_null($v)){
-					$data_type = PDO::PARAM_NULL;
-				}else{
-					$data_type = PDO::PARAM_STR;
-				}
-				$sth->bindParam($k, $v, $data_type);
-			}
+			foreach($params as $k=>&$v) $sth->bindParam($k, $v);
 		}
 
 		if($sth->execute())return $readonly ? $sth->fetchAll(PDO::FETCH_ASSOC) : $sth->rowCount();
@@ -333,9 +319,6 @@ class Model{
 	public function dbInstance($db_config, $db_config_key, $force_replace = false){
 		if($force_replace || empty($GLOBALS['mysql_instances'][$db_config_key])){
 			try {
-				if(!class_exists("PDO") || !in_array("mysql",PDO::getAvailableDrivers(), true)){
-					err('Database Err: PDO or PDO_MYSQL doesn\'t exist!');
-				}
 				$GLOBALS['mysql_instances'][$db_config_key] = new PDO('mysql:dbname='.$db_config['MYSQL_DB'].';host='.$db_config['MYSQL_HOST'].';port='.$db_config['MYSQL_PORT'], $db_config['MYSQL_USER'], $db_config['MYSQL_PASS'], array(PDO::MYSQL_ATTR_INIT_COMMAND=>'SET NAMES \''.$db_config['MYSQL_CHARSET'].'\''));
 			}catch(PDOException $e){err('Database Err: '.$e->getMessage());}
 		}
@@ -409,37 +392,29 @@ class View{
 		$template_data = '<?php if(!class_exists("View", false)) exit("no direct access allowed");?>'.$template_data;
 		
 		$this->_clear_compliedfile($tempalte_name);
-		$tmp_file = $complied_file.uniqid('_tpl', true);
-		if (!file_put_contents($tmp_file, $template_data)) err('Err: File "'.$tmp_file.'" can not be generated.');
-
-		$success = @rename($tmp_file, $complied_file);
-		if(!$success){
-			if(is_file($complied_file)) @unlink($complied_file);
-			$success = @rename($tmp_file, $complied_file);
-		}
-		if(!$success) err('Err: File "'.$complied_file.'" can not be generated.');
+		file_put_contents($complied_file, $template_data);
+		
 		return $complied_file;
 	}
 
 	private function _compile_struct($template_data){
 		$foreach_inner_before = '<?php $_foreach_$3_counter = 0; $_foreach_$3_total = count($1);?>';
-		$foreach_inner_after  = '<?php $_foreach_$3_index = $_foreach_$3_counter;$_foreach_$3_iteration = $_foreach_$3_counter + 1;$_foreach_$3_first = ($_foreach_$3_counter == 0);$_foreach_$3_last = ($_foreach_$3_counter == $_foreach_$3_total - 1);$_foreach_$3_counter++;?>';
+		$foreach_inner_after  = '<?php $_foreach_$3_index = $_foreach_$3_counter;$_foreach_$3_iteration = $_foreach_$3_counter + 1;$_foreach_$3_first = ($_foreach_$3_counter == 0);$_foreach_$3_last = ($_foreach_$3_counter == $_foreach_$3_total);$_foreach_$3_counter++;?>';
 		$pattern_map = array(
 			'<{\*([\s\S]+?)\*}>'      => '<?php /* $1*/?>',
-			'<{#(.*?)}>'              => '<?php echo $1; ?>',
-			'(<{((?!}>).)*?)(\$[\w\"\'\[\]]+?)\.(\w+)(.*?}>)' => '$1$3[\'$4\']$5',
+			'(<{((?!}>).)*?)(\$[\w\_\"\'\[\]]+?)\.(\w+)(.*?}>)' => '$1$3[\'$4\']$5',
 			'(<{.*?)(\$(\w+)@(index|iteration|first|last|total))+(.*?}>)' => '$1$_foreach_$3_$4$5',
-			'<{(\$[\$\w\.\"\'\[\]]+?)\snofilter\s*}>'          => '<?php echo $1; ?>',
-			'<{(\$[\$\w\"\'\[\]]+?)\s*=(.*?)\s*}>'           => '<?php $1 =$2; ?>',
-			'<{(\$[\$\w\.\"\'\[\]]+?)\s*}>'          => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
+			'<{(\$[\S]+?)\snofilter\s*}>'          => '<?php echo $1; ?>',
+			'<{(\$[\w\_\"\'\[\]]+?)\s*=(.*?)\s*}>'           => '<?php $1 =$2; ?>',
+			'<{(\$[\S]+?)\s*}>'          => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
 			'<{if\s*(.+?)}>'          => '<?php if ($1) : ?>',
 			'<{else\s*if\s*(.+?)}>'   => '<?php elseif ($1) : ?>',
 			'<{else}>'                => '<?php else : ?>',
 			'<{break}>'               => '<?php break; ?>',
 			'<{continue}>'            => '<?php continue; ?>',
 			'<{\/if}>'                => '<?php endif; ?>',
-			'<{foreach\s*(\$[\$\w\.\"\'\[\]]+?)\s*as(\s*)\$([\w\"\'\[\]]+?)}>' => $foreach_inner_before.'<?php foreach( $1 as $$3 ) : ?>'.$foreach_inner_after,
-			'<{foreach\s*(\$[\$\w\.\"\'\[\]]+?)\s*as\s*(\$[\w\"\'\[\]]+?)\s*=>\s*\$([\w\"\'\[\]]+?)}>'  => $foreach_inner_before.'<?php foreach( $1 as $2 => $$3 ) : ?>'.$foreach_inner_after,
+			'<{foreach\s*(\$[\w\.\_\"\'\[\]]+?)\s*as(\s*)\$([\w\_\"\'\[\]]+?)}>' => $foreach_inner_before.'<?php foreach( $1 as $$3 ) : ?>'.$foreach_inner_after,
+			'<{foreach\s*(\$[\w\.\_\"\'\[\]]+?)\s*as\s*(\$[\w\_\"\'\[\]]+?)\s*=>\s*\$([\w\_\"\'\[\]]+?)}>'  => $foreach_inner_before.'<?php foreach( $1 as $2 => $$3 ) : ?>'.$foreach_inner_after,
 			'<{\/foreach}>'           => '<?php endforeach; ?>',
 			'<{include\s*file=(.+?)}>'=> '<?php include $_view_obj->compile($1); ?>',
 		);
@@ -455,7 +430,7 @@ class View{
 	}
 	
 	private function _compile_function($template_data){
-		$pattern = '/'.$this->left_delimiter.'(\w+)\s*(.*?)'.$this->right_delimiter.'/';
+		$pattern = '/'.$this->left_delimiter.'([\w_]+)\s*(.*?)'.$this->right_delimiter.'/';
 		return preg_replace_callback($pattern, array($this, '_compile_function_callback'), $template_data);
 	}
 	
@@ -464,7 +439,7 @@ class View{
 		$sysfunc = preg_replace('/\((.*)\)\s*$/', '<?php echo '.$matches[1].'($1);?>', $matches[2], -1, $count);
 		if($count)return $sysfunc;
 		
-		$pattern_inner = '/\b([-\w]+?)\s*=\s*(\$[\w"\'\]\[\-_>\$]+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'|([->\w]+))\s*?/'; 
+		$pattern_inner = '/\b([\w_]+?)\s*=\s*(\$[\w"\'\]\[\-_>\$]+|"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"|\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\')\s*?/'; 
 		$params = "";
 		if(preg_match_all($pattern_inner, $matches[2], $matches_inner, PREG_SET_ORDER)){
 			$params = "array(";
@@ -488,16 +463,9 @@ class View{
 		}
 	}
 }
-function _err_router($msg){
-	Global $__module, $__controller, $__action;
-	if(!method_exists('BaseController', 'err404')){
-		err($msg);
-	}else{
-		BaseController::err404($__module, $__controller, $__action, $msg);
-	}
-}
+
 function _err_handle($errno, $errstr, $errfile, $errline){
-	if(0 === error_reporting() || 30711 === error_reporting())return false;
+	if(0 === error_reporting())return false;
 	$msg = "ERROR";
 	if($errno == E_WARNING)$msg = "WARNING";
 	if($errno == E_NOTICE)$msg = "NOTICE";
@@ -506,7 +474,6 @@ function _err_handle($errno, $errstr, $errfile, $errline){
 	err("$msg: $errstr in $errfile on line $errline");
 }
 function err($msg){
-	$msg = htmlspecialchars($msg);
 	$traces = debug_backtrace();
 	if(!$GLOBALS['debug']){
 		header('HTTP/1.1 500 Internal Server Error');
