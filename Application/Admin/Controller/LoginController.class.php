@@ -52,7 +52,7 @@ class LoginController extends Controller {
     //验证码
     public function verify(){
         $Verify = new \Think\Verify();
-        $Verify->codeSet = '0123456789';
+        $Verify->codeSet = '23456789qwertyupkjhfdsazxcvbnmQWERTYUPKJHGFDSAZXCVBNM';
         $Verify->fontSize = 13;
         $Verify->length = 4;
         $Verify->entry();
