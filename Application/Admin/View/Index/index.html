@@ -1,4 +1,4 @@
-<include file="Public/header" title="后台主页" />
+<include file="Public/header" title="管理后台" />
 <div id="page-wrapper">
 
     <div class="row">
@@ -17,7 +17,7 @@
                 </ul>
                 <p>2.<code>Application/Extend</code>目录已内置微信第三方API,请根据实际情况调用</p>
                 <p>3.其他功能将在后续开发中慢慢完善,比如RBAC、插件扩展等...</p>
-                <p><span class="pull-right">我的博客: <a href="http://www.cnsecer.com" target="_blank">http://www.cnsecer.com</a> </span></p> 
+                <p><span class="pull-right">联系我: <a href="http://mail.qq.com" target="_blank">yhua.lin@qq.com</a> </span></p> 
                 <div class="clearfix"></div>
             </div>
         </div>
@@ -59,7 +59,7 @@
                             <i class="fa fa-users fa-5x"></i>
                         </div>
                         <div class="col-xs-6 text-right">
-                            <p class="announcement-heading">12</p>
+                            <p class="announcement-heading">{$data.usercount}</p>
                             <p class="announcement-text">用户</p>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                             <i class="fa fa-edit fa-5x"></i>
                         </div>
                         <div class="col-xs-6 text-right">
-                            <p class="announcement-heading">18</p>
+                            <p class="announcement-heading">{$data.postcount}</p>
                             <p class="announcement-text">文章</p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                             <i class="fa fa-link fa-5x"></i>
                         </div>
                         <div class="col-xs-6 text-right">
-                            <p class="announcement-heading">56</p>
+                            <p class="announcement-heading">{$data.linkscount}</p>
                             <p class="announcement-text">链接</p>
                         </div>
                     </div>
