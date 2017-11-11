@@ -1,0 +1,49 @@
+<include file="Public/header" title="留言列表" />
+<div id="page-wrapper">
+    
+    <div class="row">
+        <div class="col-md-6">
+            <a href="{:U('guestbook/add')}" class="btn btn-success">模拟留言</a>
+        </div>
+        <div class="col-md-6">
+            <form action="{:U('guestbook/index')}" method="post">
+                <div class="form-group input-group">
+                    <input type="text" class="form-control" name="key" placeholder="输入留言标题、作者或者内容关键词搜索">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>标题</th>
+                <th>留言内容</th>
+                <th>发布时间</th>
+                <th>留言者</th>
+                <th>点赞数</th>
+                <th>操作</th> 
+            </tr>
+        </thead>
+        <tbody>
+        <foreach name="model" item="v">
+            <tr>
+                <td>{$v.id}</td>
+                <td>{$v.title}</td>
+                <td>{$v.contents|htmlspecialchars_decode|subtext=30}</td>
+                <td>{$v.createtime|date="Y/m/d H:i:s",###}</td>
+                <td>{$v.username}</td>
+                <td>{$v.dig}</td>
+                <td><a href="{:U('guestbook/update?id=')}{$v.id}">编辑</a> | <a href="{:U('guestbook/delete?id=')}{$v.id}" style="color:red;" onclick="javascript:return del('您真的确定要删除吗？\n\n删除后将不能恢复!');">删除</a></td>
+            </tr>
+        </foreach>
+        </tbody>
+    </table>
+    <div class="clearfix"></div>
+    {$page}
+    
+</div>
+<include file="Public/footer" />
