@@ -23,41 +23,39 @@ class GuestbookController extends BaseController
         } 
         
         $count  = $model->where($where)->count();// 查询满足要求的总记录数
-        $Page = new \Extend\Page($count,15);// 实例化分页类 传入总记录数和每页显示的记录数(25)
+        $Page = new \Extend\Page($count,10);// 实例化分页类 传入总记录数和每页显示的记录数(25)
         $show = $Page->show();// 分页显示输出
         $guestbook = $model->limit($Page->firstRow.','.$Page->listRows)->where($where)->order('guestbook.id DESC')->select();
         $this->assign('model', $guestbook);
         $this->assign('page',$show);
         $this->display();     
     }
-    // /**
-    //  * 添加留言
-    //  */
-    // public function add()
-    // {
-    //     //默认显示添加表单
-    //     if (!IS_POST) {
-    //     	$this->assign("category",getSortedCategory(M('category')->select()));
-    //         $this->display();
-    //     }
-    //     if (IS_POST) {
-    //         //如果用户提交数据
-    //         $model = D("Post");
-    //         $model->time = time();
-    //         $model->user_id = 1;
-    //         if (!$model->create()) {
-    //             // 如果创建失败 表示验证没有通过 输出错误提示信息
-    //             $this->error($model->getError());
-    //             exit();
-    //         } else {
-    //             if ($model->add()) {
-    //                 $this->success("添加成功", U('post/index'));
-    //             } else {
-    //                 $this->error("添加失败");
-    //             }
-    //         }
-    //     }
-    // }
+    /**
+     * 模拟留言
+     */
+    public function add()
+    {
+        //默认显示添加表单
+        if (!IS_POST) {
+            $this->display();
+        }
+        if (IS_POST) {
+            //如果用户提交数据
+            $model = D("guestbook");
+            $model->createtime = time();
+            if (!$model->create()) {
+                // 如果创建失败 表示验证没有通过 输出错误提示信息
+                $this->error($model->getError());
+                exit();
+            } else {
+                if ($model->add()) {
+                    $this->success("添加成功", U('guestbook/index'));
+                } else {
+                    $this->error("添加失败");
+                }
+            }
+        }
+    }
     /**
      * 更新留言信息
      * @param  [type] $id [文章ID]
@@ -73,6 +71,7 @@ class GuestbookController extends BaseController
         }
         if (IS_POST) {
             $model = D("guestbook");
+            $model->createtime = time();
             if (!$model->create()) {
                 $this->error($model->getError());
             }else{
