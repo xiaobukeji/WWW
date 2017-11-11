@@ -22,4 +22,17 @@ class IndexController extends BaseController{
     	$this->assign('data',$data);
         $this->display();
     }
+
+    /**
+     * 清除缓存
+     */
+    public function cache(){
+        $rtim=del_dir(APP_PATH.'/Runtime');
+        if($rtim){
+            $this->success('清除成功',false);
+        }else{
+            $this->error('清除失败');
+        }
+    }
+
 }
